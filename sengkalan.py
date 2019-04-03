@@ -11,6 +11,7 @@ __description__ =   "Sengkalan Generator"
 import random
 import argparse
 import datetime
+from latintojavanese import dotransliterate
 
 def watak(angka):
     if angka == 0:
@@ -168,13 +169,19 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     year = args.tahun
-    
-    print('Untuk sengkalan tahun' + str(year)+', kamu bisa memilih satu di antara tiga pilihan berikut:')
-    print(generate_sengkalan(year))
+
+    print('Pilih sengkalan tahun' + str(year)+':\n')
+    one = generate_sengkalan(year)
+    two = generate_sengkalan(year)
+    three = generate_sengkalan(year)
+    print(one)
+    print(dotransliterate(one.lower()))
     print()
-    print(generate_sengkalan(year))
+    print(two)
+    print(dotransliterate(two.lower()))
     print()
-    print(generate_sengkalan(year))
+    print(three)
+    print(dotransliterate(three.lower()))
 
 
 
