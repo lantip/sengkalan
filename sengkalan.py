@@ -160,28 +160,26 @@ def generate_sengkalan(angka):
 
     return ' '.join(hsl)
 
-
-if __name__ == '__main__':
-
+def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.MetavarTypeHelpFormatter)
     parser.add_argument('-t', '--tahun', type=int, default=int(datetime.datetime.now().year), help="Masukkan angka Tahun (Input year)", required=True)
-
+    parser.add_argument('-n', '--jumlah', type=int, default=3, help="Jumlah sengkalan yang ingin digenerate", required=False)
     args = parser.parse_args()
 
     year = args.tahun
+    jumlah = args.jumlah
 
-    print('Pilih sengkalan tahun' + str(year)+':\n')
-    one = generate_sengkalan(year)
-    two = generate_sengkalan(year)
-    three = generate_sengkalan(year)
-    print(one)
-    print(dotransliterate(one.lower()))
-    print()
-    print(two)
-    print(dotransliterate(two.lower()))
-    print()
-    print(three)
-    print(dotransliterate(three.lower()))
+    print('Pilih sengkalan tahun ' + str(year)+':\n')
+    for i in range(jumlah):
+        hsl = generate_sengkalan(year)
+        print(hsl)
+        print(dotransliterate(hsl.lower()))
+
+
+if __name__ == '__main__':
+    main()
+
+    
 
 
 
