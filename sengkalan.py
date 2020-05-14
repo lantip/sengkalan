@@ -11,6 +11,7 @@ __description__ =   "Sengkalan Generator"
 import random
 import argparse
 import datetime
+import json
 from latintojavanese import dotransliterate
 
 def watak(angka):
@@ -163,16 +164,100 @@ def generate_sengkalan(angka):
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.MetavarTypeHelpFormatter)
     parser.add_argument('-t', '--tahun', type=int, default=int(datetime.datetime.now().year), help="Masukkan angka Tahun (Input year)", required=True)
-    parser.add_argument('-n', '--jumlah', type=int, default=3, help="Jumlah sengkalan yang ingin digenerate", required=False)
+    parser.add_argument('-n', '--jumlah', type=int, default=1, help="Jumlah sengkalan yang ingin digenerate", required=False)
     args = parser.parse_args()
 
     year = args.tahun
     jumlah = args.jumlah
 
+    kamus = json.loads(open('kamus.json','r').read())
+    kamusjawa = json.loads(open('kamus-poerwadarminta.json','r').read())
     print('Pilih sengkalan tahun ' + str(year)+':\n')
     for i in range(jumlah):
         hsl = generate_sengkalan(year)
         print(hsl)
+        result = hsl.split()
+        for hs in result:
+            ada = False
+            if hs.lower().strip() in kamus.keys():
+                ada  = True
+            if not ada:
+                newhs = hs.lower().strip().replace('e','\u00e9')
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if not ada:
+                newhs = hs.lower().strip().replace('e','\u00e8')
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if not ada:
+                newhs = hs.lower().strip().replace('e','\u00ea')
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if not ada:
+                newhs = hs.lower().strip().replace('e','é')
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if not ada:
+                newhs = hs.lower().strip().replace('e','è')
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if not ada:
+                newhs = hs.lower().strip().replace('e','ê')
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if not ada:
+                newhs = hs.lower()[:-2]
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if ada:
+                print(hs,":",kamus[hs.lower().strip()])
+            else:
+                if hs.lower().strip() in kamusjawa.keys():
+                    ada  = True
+                if not ada:
+                    newhs = hs.lower().strip().replace('e','\u00e9')
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if not ada:
+                    newhs = hs.lower().strip().replace('e','\u00e8')
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if not ada:
+                    newhs = hs.lower().strip().replace('e','\u00ea')
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if not ada:
+                    newhs = hs.lower().strip().replace('e','é')
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if not ada:
+                    newhs = hs.lower().strip().replace('e','è')
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if not ada:
+                    newhs = hs.lower().strip().replace('e','ê')
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if not ada:
+                    newhs = hs.lower()[:-2]
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if ada:
+                    print(hs,":",kamusjawa[hs.lower().strip()])
         print(dotransliterate(hsl.lower()))
 
 
