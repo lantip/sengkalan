@@ -13,6 +13,9 @@ import argparse
 import datetime
 import json
 from latintojavanese import dotransliterate
+from convertdate import islamic
+import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def watak(angka):
     if angka == 0:
@@ -161,23 +164,20 @@ def generate_sengkalan(angka):
 
     return ' '.join(hsl)
 
-def main():
-    parser = argparse.ArgumentParser(formatter_class=argparse.MetavarTypeHelpFormatter)
-    parser.add_argument('-t', '--tahun', type=int, default=int(datetime.datetime.now().year), help="Masukkan angka Tahun (Input year)", required=True)
-    parser.add_argument('-n', '--jumlah', type=int, default=1, help="Jumlah sengkalan yang ingin digenerate", required=False)
-    args = parser.parse_args()
 
-    year = args.tahun
-    jumlah = args.jumlah
+def dosengkalan(year, jumlah):
+    kamus = json.loads(open(dir_path+'/kamus.json','r').read())
+    kamusjawa = json.loads(open(dir_path+'/kamus-poerwadarminta.json','r').read())
+    islamicyear, month, day = islamic.from_gregorian(int(year),1,1)
+    javaneseyear = islamicyear + 512
 
-    kamus = json.loads(open('kamus.json','r').read())
-    kamusjawa = json.loads(open('kamus-poerwadarminta.json','r').read())
-    print('Pilih sengkalan tahun ' + str(year)+':\n')
+    hasil = []
     for i in range(jumlah):
         hsl = generate_sengkalan(year)
-        print(hsl)
-        result = hsl.split()
-        for hs in result:
+        rsl = generate_sengkalan(javaneseyear)
+        results = hsl.split()
+        translate = []
+        for hs in results:
             ada = False
             if hs.lower().strip() in kamus.keys():
                 ada  = True
@@ -217,7 +217,7 @@ def main():
                     ada = True
                     hs = newhs
             if ada:
-                print(hs,":",kamus[hs.lower().strip()])
+                translate.append(hs+" :"+kamus[hs.lower().strip()])
             else:
                 if hs.lower().strip() in kamusjawa.keys():
                     ada  = True
@@ -257,8 +257,123 @@ def main():
                         ada = True
                         hs = newhs
                 if ada:
-                    print(hs,":",kamusjawa[hs.lower().strip()])
-        print(dotransliterate(hsl.lower()))
+                    translate.append(hs+": "+kamusjawa[hs.lower().strip()])
+        transl = dotransliterate(hsl.lower())
+
+        rsl = generate_sengkalan(javaneseyear)
+        results = rsl.split()
+        translatejw = []
+        for hs in results:
+            ada = False
+            if hs.lower().strip() in kamus.keys():
+                ada  = True
+            if not ada:
+                newhs = hs.lower().strip().replace('e','\u00e9')
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if not ada:
+                newhs = hs.lower().strip().replace('e','\u00e8')
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if not ada:
+                newhs = hs.lower().strip().replace('e','\u00ea')
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if not ada:
+                newhs = hs.lower().strip().replace('e','é')
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if not ada:
+                newhs = hs.lower().strip().replace('e','è')
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if not ada:
+                newhs = hs.lower().strip().replace('e','ê')
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if not ada:
+                newhs = hs.lower()[:-2]
+                if newhs in kamus.keys():
+                    ada = True
+                    hs = newhs
+            if ada:
+                translatejw.append(hs+" :"+kamus[hs.lower().strip()])
+            else:
+                if hs.lower().strip() in kamusjawa.keys():
+                    ada  = True
+                if not ada:
+                    newhs = hs.lower().strip().replace('e','\u00e9')
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if not ada:
+                    newhs = hs.lower().strip().replace('e','\u00e8')
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if not ada:
+                    newhs = hs.lower().strip().replace('e','\u00ea')
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if not ada:
+                    newhs = hs.lower().strip().replace('e','é')
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if not ada:
+                    newhs = hs.lower().strip().replace('e','è')
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if not ada:
+                    newhs = hs.lower().strip().replace('e','ê')
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if not ada:
+                    newhs = hs.lower()[:-2]
+                    if newhs in kamusjawa.keys():
+                        ada = True
+                        hs = newhs
+                if ada:
+                    translatejw.append(hs+": "+kamusjawa[hs.lower().strip()])
+        transljw = dotransliterate(rsl.lower())
+        result = {
+            'tahun': year,
+            'tahunjawa': javaneseyear,
+            'sengkalan': hsl,
+            'sengkalanjawa': rsl,
+            'translatejawa': translatejw,
+            'translate': translate,
+            'aksara': transl,
+            'aksarajawa': transljw
+        }
+        hasil.append(result)
+    return hasil
+
+def main():
+    parser = argparse.ArgumentParser(formatter_class=argparse.MetavarTypeHelpFormatter)
+    parser.add_argument('-t', '--tahun', type=int, default=int(datetime.datetime.now().year), help="Masukkan angka Tahun (Input year)", required=True)
+    parser.add_argument('-n', '--jumlah', type=int, default=1, help="Jumlah sengkalan yang ingin digenerate", required=False)
+    args = parser.parse_args()
+
+    year = args.tahun
+    jumlah = args.jumlah
+
+    hasil = dosengkalan(year, jumlah)
+    for hsl in hasil:
+        for key, value in hsl.items():
+            if isinstance(value,list):
+                print('\n'.join(value))
+            else:
+                print(value)
 
 
 if __name__ == '__main__':
